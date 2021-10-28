@@ -45,14 +45,12 @@ func finishRace(race grid.Race, totalDistance pacing.Distance, maxTime pacing.Du
 		_, distance, duration := segment.Stats()
 		distanceCompleted += distance
 		timeElapsed = timeElapsed.Add(duration)
-		log.Infof("%s time elapsed and %s distance completed so far...", timeElapsed, race.Units.DistanceString(distanceCompleted))
 	}
 
 	timeRemaining := maxTime.Subtract(timeElapsed)
 	distanceRemaining := totalDistance - distanceCompleted
 
 	pace := pacing.Calculate(timeRemaining, distanceRemaining, race.Units)
-	log.Infof("PACE = %s", pace.Rate)
 
 	return grid.CourseSegment{
 		Pace:        pace,
@@ -85,14 +83,14 @@ func main() {
 		for si, segment := range race.Segments {
 			pace, distance, duration := segment.Stats()
 			d := race.Units.DistanceString(distance)
-			log.WithField("race", i+1).WithField("segment", si+1).Infof("%s completed in %s with a pace of %s", d, duration, pace)
+			log.WithField("race", i+1).WithField("segment", si+1).Infof("%s completed in %s with a pace of %s %s", d, duration, pace, pace.Units)
 		}
 		pace, distance, duration := remainingSegment.Stats()
 		d := race.Units.DistanceString(distance)
 		log.WithField("race", i+1).Infof(
-			"A pace of %s is required to complete the remaining %s of %s "+
+			"A pace of %s %s is required to complete the remaining %s of %s "+
 				"in %s to achieve a time of %s",
-			pace, d, grid.TotalDistance,
+			pace, pace.Units, d, grid.TotalDistance,
 			duration, grid.TotalDuration,
 		)
 	}

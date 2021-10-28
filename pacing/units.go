@@ -39,23 +39,26 @@ var fmtFloat64 = func(rate float64) string {
 	return fmt.Sprintf("%.2f", rate)
 }
 
-var fmtTimeDuration = func(rate float64) string {
-	var str string
-	d := time.Duration(rate)
-	hours := int(d.Hours())
-	d -= (time.Duration(hours) * time.Hour)
+func fmtTimeDuration(units time.Duration) func(float64) string {
+	return func(rate float64) string {
+		var str string
+		d := time.Duration(rate * float64(units))
+		hours := int(d.Hours())
+		d -= (time.Duration(hours) * time.Hour)
 
-	minutes := int(d.Minutes())
-	d -= (time.Duration(minutes) * time.Minute)
+		minutes := int(d.Minutes())
+		d -= (time.Duration(minutes) * time.Minute)
 
-	seconds := int(d.Seconds())
+		seconds := int(d.Seconds())
 
-	if hours == 0 {
-		str += fmt.Sprintf("%d:%02d", minutes, seconds)
-	} else {
-		str += fmt.Sprintf("%d:%02d:%02d", hours, minutes, seconds)
+		if hours == 0 {
+			str += fmt.Sprintf("%d:%02d", minutes, seconds)
+		} else {
+			str += fmt.Sprintf("%d:%02d:%02d", hours, minutes, seconds)
+		}
+		return str
 	}
-	return str
+
 }
 
 func Units(u string) (Unit, error) {
@@ -104,7 +107,7 @@ var MINKM = Unit{
 	func(mps float64) float64 {
 		return minKmPerMps / mps
 	},
-	fmtTimeDuration,
+	fmtTimeDuration(time.Minute),
 }
 
 // MINMILE represents rates/distances as minutes per mile
@@ -118,5 +121,5 @@ var MINMILE = Unit{
 	func(mps float64) float64 {
 		return minMilePerMps / mps
 	},
-	fmtTimeDuration,
+	fmtTimeDuration(time.Minute),
 }
