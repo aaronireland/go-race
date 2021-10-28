@@ -6,14 +6,19 @@
       "units": "min/mile",
       "segments": [
         {
-          "pace":"9:07",
+          "pace":"9:30",
           "units":"min/mile",
-          "distance": 1.00
+          "time": "2m"
         },
         {
-          "pace": "40",
-          "units":"mph",
-          "time":"15h"
+          "pace": "9:15",
+          "units":"min/mile",
+          "distance": 2.2
+        },
+        {
+          "distance": 2,
+          "time": "18:30",
+          "units":"min/mile"
         }
       ]
     }
