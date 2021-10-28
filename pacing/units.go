@@ -13,7 +13,7 @@ const (
 	secondsPerMin = 60.00
 	metersPerMile = 1609.34
 	minMilePerMps = 26.8224
-	minKmPerMps   = float64(50 / 3)
+	minKmPerMps   = float64(50.0 / 3.0)
 	kphPerMps     = 3.6
 	mphPerMps     = 2.2369362920544
 )
