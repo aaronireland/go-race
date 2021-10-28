@@ -3,7 +3,6 @@ package pacing
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -13,54 +12,33 @@ type Pace struct {
 	Units Unit
 }
 
-// New is the basic constructor for a Pace
-func New(pace float64, units Unit) Pace {
-	return Pace{pace, units}
+// New is the constructor for a Pace. It attempts to parses the pace rate as a duration and converts
+// that duration to a decimal value using the units provided
+func New(pace interface{}, units Unit) (Pace, error) {
+	switch val := pace.(type) {
+	case float64:
+		return Pace{val, units}, nil
+	case Duration:
+		return Pace{units.Duration(val), units}, nil
+	case time.Duration:
+		return Pace{units.Duration(Duration{val}), units}, nil
+	case string:
+		duration, err := ParseDuration(val)
+		if err != nil {
+			if paceAsFloat, err := strconv.ParseFloat(val, 64); err == nil {
+				return Pace{paceAsFloat, units}, nil
+			}
+			return Pace{}, fmt.Errorf("invalid pace rate %s: %w", val, err)
+		}
+		return Pace{units.Duration(duration), units}, nil
+	default:
+		return Pace{}, fmt.Errorf("unsupported pace value type: %T", val)
+	}
 }
 
 // Calculate extrapolates the pace value from a duration and distance value (distance units gathered from the Units provided)
 func Calculate(duration Duration, distance Distance, units Unit) Pace {
 	return Pace{units.fromMPS(distance.Meters() / float64(duration.Seconds())), units}
-}
-
-// Parse attempts to convert a string value into a pace value (either a time duration or a decimal distance). Valid
-// inputs are as such: hh:mm:ss, mm:ss, 00h00m00s (or any valid time.Duration string), or a numeric value like 1.23 etc.
-func Parse(pace string, units Unit) (Pace, error) {
-	parts := strings.Split(pace, ":")
-	switch len(parts) {
-	case 3: // hh:mm:ss
-		pace = fmt.Sprintf("%sh%sm%ss", parts[0], parts[1], parts[2])
-		return parseFromDuration(pace, units)
-	case 2: // mm:ss
-		pace = fmt.Sprintf("%sm%ss", parts[0], parts[1])
-		return parseFromDuration(pace, units)
-	default: // either 00h00m00s, 00m00s, 00s, or a decimal value
-		p, err := parseFromDuration(pace, units)
-		if err != nil {
-			if paceAsFloat, err := strconv.ParseFloat(pace, 64); err == nil {
-				return New(paceAsFloat, units), nil
-			}
-			return Pace{}, fmt.Errorf("invalid pace string \"%s\": %w", pace, err)
-		}
-		return p, nil
-	}
-}
-
-// MustParse attempts to convert a string value in a pace value and panics if the input is invalid (see: pacing.Parse)
-func MustParse(pace string, units Unit) Pace {
-	p, err := Parse(pace, units)
-	if err != nil {
-		panic(err)
-	}
-	return p
-}
-
-func parseFromDuration(pace string, units Unit) (Pace, error) {
-	paceTime, err := time.ParseDuration(pace)
-	if err != nil {
-		return Pace{}, fmt.Errorf("invalid pace string: %w", err)
-	}
-	return New(units.Duration(paceTime), units), nil
 }
 
 func (p Pace) String() string {

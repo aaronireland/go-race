@@ -57,17 +57,13 @@ func (g *CourseGrid) UnmarshalJSON(data []byte) error {
 			totalDuration time.Duration
 		)
 		for _, segment := range race.Segments {
-			if segment.Distance > 0 {
-				totalDistance += segment.Distance
-				totalDuration += segment.Pace.Duration(segment.Distance).Time()
-			} else {
-				totalDistance += segment.Pace.Distance(segment.TimeElapsed)
-				totalDuration += segment.TimeElapsed.Time()
-			}
+			_, distance, duration := segment.Stats()
+			totalDistance += distance
+			totalDuration += duration.Time()
 
 		}
 
-		if totalDistance >= courseDistance || totalDuration >= grid.TotalDuration.Time() {
+		if totalDistance > courseDistance || totalDuration > grid.TotalDuration.Time() {
 			dist, _ := race.Units.DistanceInUnits(totalDistance)
 			courseDist, _ := race.Units.DistanceInUnits(courseDistance)
 			unit := pacing.DistanceUnitString(race.Units.DistanceUnit())
@@ -92,6 +88,19 @@ func (csj courseSegmentJSON) toCourseSegment() (CourseSegment, error) {
 	}
 	s.Pace = pace
 	return s, nil
+}
+
+func (s CourseSegment) Stats() (pace pacing.Pace, distance pacing.Distance, duration pacing.Duration) {
+	pace = s.Pace
+
+	if s.Distance > 0 {
+		distance = s.Distance
+		duration = s.Pace.Duration(s.Distance)
+	} else {
+		distance = s.Pace.Distance(s.TimeElapsed)
+		duration = s.TimeElapsed
+	}
+	return
 }
 
 func (s CourseSegment) toJSON() (courseSegmentJSON, error) {
@@ -143,7 +152,7 @@ func (csj courseSegmentJSON) calculatePace() (pacing.Pace, error) {
 	}
 
 	if csj.Pace != "" {
-		return pacing.Parse(csj.Pace, csj.Units)
+		return pacing.New(csj.Pace, csj.Units)
 	}
 
 	distance, err := csj.Units.Distance(csj.Distance)

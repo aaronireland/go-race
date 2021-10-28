@@ -15,8 +15,6 @@ type Unit struct {
 	distance     Distance
 	toMPS        conversionFunc
 	fromMPS      conversionFunc
-	fromMeters   conversionFunc
-	toMeters     conversionFunc
 	formatString func(float64) string
 }
 
@@ -65,6 +63,14 @@ func (u Unit) DistanceInUnits(val interface{}) (float64, error) {
 
 func (u Unit) DistanceUnit() Distance {
 	return u.distance
+}
+
+func (u Unit) DistanceString(val interface{}) string {
+	d, err := u.DistanceInUnits(val)
+	if err != nil {
+		return err.Error()
+	}
+	return fmt.Sprintf("%.2f %s", d, DistanceUnitString(u.distance))
 }
 
 func (u Unit) Duration(val interface{}) float64 {

@@ -76,12 +76,6 @@ var KPH = Unit{
 	func(mps float64) float64 {
 		return mps * kphPerMps
 	},
-	func(meters float64) float64 {
-		return meters / metersPerKm
-	},
-	func(km float64) float64 {
-		return km * metersPerKm
-	},
 	fmtFloat64,
 }
 
@@ -95,12 +89,6 @@ var MPH = Unit{
 	},
 	func(mps float64) float64 {
 		return mps * mphPerMps
-	},
-	func(meters float64) float64 {
-		return meters / metersPerMile
-	},
-	func(miles float64) float64 {
-		return miles * metersPerMile
 	},
 	fmtFloat64,
 }
@@ -116,12 +104,6 @@ var MINKM = Unit{
 	func(mps float64) float64 {
 		return minKmPerMps / mps
 	},
-	func(meters float64) float64 {
-		return meters / metersPerKm
-	},
-	func(km float64) float64 {
-		return km * metersPerKm
-	},
 	fmtTimeDuration,
 }
 
@@ -135,12 +117,6 @@ var MINMILE = Unit{
 	},
 	func(mps float64) float64 {
 		return minMilePerMps / mps
-	},
-	func(meters float64) float64 {
-		return meters / metersPerMile
-	},
-	func(miles float64) float64 {
-		return miles * metersPerMile
 	},
 	fmtTimeDuration,
 }
