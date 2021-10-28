@@ -1,0 +1,21 @@
+{
+  "totalDistance":"13.1mi",
+  "totalTime":"1h59m",
+  "races": [
+    { 
+      "units": "min/mile",
+      "segments": [
+        {
+          "pace":"9:07",
+          "units":"min/mile",
+          "distance": 1.00
+        },
+        {
+          "pace": "40",
+          "units":"mph",
+          "time":"15h"
+        }
+      ]
+    }
+  ]
+}
